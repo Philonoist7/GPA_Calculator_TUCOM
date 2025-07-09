@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>احسب معدلك التراكمي</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+      body {
+          font-family: 'Tajawal', sans-serif;
+          background-color: #f0f5f9;
+          direction: rtl;
+          margin-bottom: 70px; /* should be >= footer height */
+      }
+      .container {
+          margin-top: 30px;
+          margin-bottom: 0; /* remove if present */
+          background-color: #ffffff;
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+          margin-bottom: 25px;
+          color: #2c3e50;
+          text-align: center;
+          font-weight: bold;
+      }
+      label {
+          font-weight: bold;
+          color: #34495e;
+          display: block;
+          text-align: right;
+      }
+
+      .form-control,
+      .custom-select {
+          border: 1px solid #ced6e0;
+          border-radius: 10px;
+          font-size: 16px;
+          width: 100%;
+      }
+      .form-control {
+          padding: 12px;
+      }
+      .custom-select {
+          height: calc(1.5em + 0.75rem + 2px);
+          line-height: 1.5;
+          color: #495057;
+          text-align: right;
+      }
+      .custom-select option {
+          text-align: right;
+          direction: rtl;
+      }
+
+      /* Styling for stage selection separation */
+      #stageSelectionContainer {
+          margin-bottom: 25px; /* Space below the stage selector */
+          padding-bottom: 20px; /* Space above the border */
+          border-bottom: 1px solid #e0e0e0; /* Subtle separator line */
+      }
+
+      .result {
+          margin-top: 25px;
+          padding: 20px;
+          border: 1px solid #ced6e0;
+          border-radius: 10px;
+          background-color: #e9ecef;
+          font-size: 18px;
+          text-align: center;
+      }
+      .result p {
+          margin: 8px 0;
+      }
+      .result .gpa-value {
+          font-weight: bold;
+          color: #1abc9c;
+      }
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #303030;
+        color: #ecf0f1;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 16px;
+        z-index: 100;
+    }
+    header a {
+        color: #ff4f29;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    body {
+        padding-top: 60px; /* Adjust if needed to prevent content underlap */
+    }
+      .btn-calculate {
+          background-color: #3498db;
+          border-color: #3498db;
+          color: white;
+          font-weight: bold;
+          padding: 10px 20px;
+          font-size: 18px;
+          border-radius: 10px;
+          transition: background-color 0.3s ease;
+          width: 100%;
+          margin-top: 20px;
+      }
+      .btn-calculate:hover {
+          background-color: #2980b9;
+          border-color: #2980b9;
+          color: white;
+      }
+      .form-group label small {
+          font-weight: normal;
+          color: #7f8c8d;
+      }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+
+  <header>
+       <span> </span> .Made by <a href="https://t.me/Ali_Dicaprio"> Ali Hussein</a>
+</header>
+
+
+</head>
+<body>
+  <div class="container">
+      <h2>احسب معدلك التراكمي</h2>
+      
+      <div id="stageSelectionContainer"> 
+          <div class="form-group">
+              <label for="stageSelector">اختر المرحلة الدراسية:</label>
+              <select class="custom-select" id="stageSelector">
+                  <option value="" selected>-- اختر المرحلة --</option>
+                  <option value="1">المرحلة الأولى</option>
+                  <option value="2">المرحلة الثانية</option>
+                  <option value="3">المرحلة الثالثة</option>
+                  <option value="4">المرحلة الرابعة</option>
+                  <option value="5">المرحلة الخامسة</option>
+                  <option value="6">المرحلة السادسة</option>
+              </select>
+          </div>
+      </div>
+
+      <form id="gpaForm">
+          <div id="courseInputsContainer">
+              <!-- Course inputs will be dynamically added here -->
+          </div>
+          <button type="button" class="btn btn-calculate" id="calculateBtn" style="display: none;">أحسب المعدل</button>
+      </form>
+      
+      <div class="result" id="result" style="display: none;"></div>
+  </div>
+
+  <script>
+      const coursesData = {
+          1: [
+              { id: 's1_anat', name: 'التشريح', weight: 6 },
+              { id: 's1_histo', name: 'الأنسجة', weight: 3.5 },
+              { id: 's1_embryo', name: 'الأجنة', weight: 1 },
+              { id: 's1_biochem', name: 'الكيمياء الحياتية', weight: 4.5 },
+              { id: 's1_physio', name: 'الفسلجة', weight: 2.5 },
+              { id: 's1_micro', name: 'الأحياء المجهرية', weight: 1.5 },
+              { id: 's1_english', name: 'اللغة الانجليزية', weight: 2 },
+              { id: 's1_genetics', name: 'الوراثة', weight: 2 },
+              { id: 's1_computer', name: 'الحاسبات', weight: 2 },
+              { id: 's1_medphys', name: 'الفيزياء الطبية', weight: 4 },
+              { id: 's1_humanrights', name: 'حقوق انسان', weight: 2 }
+          ],
+          2: [
+              { id: 's2_anat', name: 'التشريح', weight: 5.5 },
+              { id: 's2_histo', name: 'الانسجة', weight: 2.5 },
+              { id: 's2_embryo', name: 'الاجنة', weight: 1 },
+              { id: 's2_biochem', name: 'الكيمياء الحياتية', weight: 5 },
+              { id: 's2_physio', name: 'الفسلجة', weight: 6 },
+              { id: 's2_patho', name: 'علم الامراض', weight: 6 },
+              { id: 's2_micro', name: 'الاحياء المجهرية', weight: 3.5 },
+              { id: 's2_comm', name: 'طب المجتمع', weight: 3 },
+              { id: 's2_pharma', name: 'الادوية', weight: 2 },
+              { id: 's2_fieldproj', name: 'المشروع الميداني', weight: 2 },
+              { id: 's2_publiberties', name: 'حريات عامة', weight: 2 }
+          ],
+          3: [
+              { id: 's3_micro', name: 'الأحياء المجهرية', weight: 3 },
+              { id: 's3_parasito', name: 'الطفيليات', weight: 6 },
+              { id: 's3_comm', name: 'طب المجتمع', weight: 2 },
+              { id: 's3_medicine', name: 'الطب', weight: 4 },
+              { id: 's3_pharma', name: 'الأدوية', weight: 5 },
+              { id: 's3_anatpatho', name: 'التشريح', weight: 5 },
+              { id: 's3_histo', name: 'الأنسجة', weight: 3.5 },
+              { id: 's3_embryo', name: 'الأجنة', weight: 1 },
+              { id: 's3_surgery', name: 'الجراحة', weight: 2 },
+              { id: 's3_biochem', name: 'الكيمياء الحياتية', weight: 3.5 },
+              { id: 's3_physio', name: 'الفسلجة', weight: 4 },
+              { id: 's3_pathogen', name: 'الأمراض', weight: 6 },
+              { id: 's3_fieldproj', name: 'المشروع الميداني', weight: 2 }
+          ],
+          4: [
+              { id: 's4_im', name: 'الباطنية', weight: 11 },
+              { id: 's4_s', name: 'الجراحة', weight: 7 },
+              { id: 's4_p', name: 'الأطفال', weight: 7 },
+              { id: 's4_o', name: 'النسائية والتوليد', weight: 7 },
+              { id: 's4_fm', name: 'الطب العدلي', weight: 2 },
+              { id: 's4_me', name: 'الأخلاق الطبية', weight: 2 },
+              { id: 's4_cm', name: 'طب المجتمع', weight: 6 },
+              { id: 's4_fp', name: 'المشروع الميداني', weight: 2 }
+          ],
+          5: [
+              { id: 's5_derma', name: 'الجلدية', weight: 3.5 },
+              { id: 's5_ophtha', name: 'العيون', weight: 3.5 },
+              { id: 's5_ent', name: 'الأنف والأذن والحنجرة', weight: 3.5 },
+              { id: 's5_phc', name: 'الرعاية الصحية الأولية', weight: 3.5 },
+              { id: 's5_medicine', name: 'الطب', weight: 6.5 },
+              { id: 's5_psych', name: 'الطب النفسي', weight: 3.5 },
+              { id: 's5_pedinfect', name: 'طب الأطفال والأمراض المعدية', weight: 3 },
+              { id: 's5_fractures', name: 'الكسور', weight: 3.5 },
+              { id: 's5_surgery', name: 'الجراحة', weight: 3.5 },
+              { id: 's5_radiology', name: 'الأشعة', weight: 3.5 },
+              { id: 's5_obgyn', name: 'النسائية', weight: 5.5 },
+              { id: 's5_fieldproj', name: 'المشروع الميداني', weight: 3.5 }
+          ],
+          6: [
+              { id: 's6_im', name: 'الطب الباطني', weight: 12 },
+              { id: 's6_surgery', name: 'الجراحة', weight: 12 },
+              { id: 's6_pediatrics', name: 'طب الاطفال', weight: 11 },
+              { id: 's6_obgyn', name: 'النسائية والتوليد', weight: 11 }
+          ]
+      };
+
+      const gpaScales = {
+          1: { outOf: 5, divisor: 20 },
+          2: { outOf: 5, divisor: 20 },
+          3: { outOf: 5, divisor: 20 },
+          4: { outOf: 20, divisor: 5 },
+          5: { outOf: 25, divisor: 4 },
+          6: { outOf: 40, divisor: 2.5 }
+      };
+
+    const stageNames = {
+        1: "<b>الأولى</b>",
+        2: "<b>الثانية</b>",
+        3: "<b>الثالثة</b>",
+        4: "<b>الرابعة</b>",
+        5: "<b>الخامسة</b>",
+        6: "<b>السادسة</b>"
+    };
+
+      const stageSelector = document.getElementById('stageSelector');
+      const courseInputsContainer = document.getElementById('courseInputsContainer');
+      const calculateBtn = document.getElementById('calculateBtn');
+      const resultDiv = document.getElementById('result');
+
+      stageSelector.addEventListener('change', function() {
+          const selectedStage = this.value;
+          courseInputsContainer.innerHTML = '';
+          resultDiv.style.display = 'none';
+          resultDiv.innerHTML = '';
+
+          if (selectedStage && coursesData[selectedStage]) {
+              coursesData[selectedStage].forEach(course => {
+                  const formGroup = document.createElement('div');
+                  formGroup.className = 'form-group';
+                  
+                  const label = document.createElement('label');
+                  label.htmlFor = course.id;
+                  label.innerHTML = `تقديرك في مادة ${course.name} <small>(وحدات: ${course.weight})</small>:`;
+                  
+                  const input = document.createElement('input');
+                  input.type = 'number';
+                  input.className = 'form-control';
+                  input.id = course.id;
+                  input.placeholder = `الدرجة (0 - 100)`;
+                  input.min = "0";
+                  input.max = "100";
+                  input.dataset.weight = course.weight;
+
+                  input.addEventListener('keydown', function(e) {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                          e.preventDefault();
+                      }
+                  });
+                  
+                  formGroup.appendChild(label);
+                  formGroup.appendChild(input);
+                  courseInputsContainer.appendChild(formGroup);
+              });
+              calculateBtn.style.display = 'block';
+          } else {
+              calculateBtn.style.display = 'none';
+          }
+      });
+
+      calculateBtn.addEventListener('click', function() {
+          const selectedStage = stageSelector.value;
+          if (!selectedStage || !coursesData[selectedStage]) {
+              resultDiv.innerHTML = '<p style="color: red;">يرجى اختيار المرحلة الدراسية أولاً.</p>';
+              resultDiv.style.display = 'block';
+              return;
+          }
+
+          const inputs = courseInputsContainer.querySelectorAll('input[type="number"]');
+          let totalWeightedScore = 0;
+          let totalCredits = 0;
+          let allFieldsValid = true;
+          let allFieldsFilled = true;
+
+          inputs.forEach(input => {
+              input.classList.remove('is-invalid'); 
+              const valueStr = input.value.trim();
+              const weight = parseFloat(input.dataset.weight);
+
+              if (valueStr === "") {
+                  allFieldsFilled = false;
+                  input.classList.add('is-invalid'); 
+                  return; 
+              }
+              
+              const value = parseFloat(valueStr);
+
+              if (isNaN(value) || value < 0 || value > 100) {
+                  input.classList.add('is-invalid');
+                  allFieldsValid = false;
+              } else {
+                  totalWeightedScore += value * weight;
+                  totalCredits += weight;
+              }
+          });
+
+          if (!allFieldsFilled) {
+              resultDiv.innerHTML = '<p style="color: red;">يرجى ملء جميع حقول المواد للمرحلة المختارة.</p>';
+              resultDiv.style.display = 'block';
+              return;
+          }
+          
+          if (!allFieldsValid) {
+              resultDiv.innerHTML = '<p style="color: red;">يرجى إدخال قيم صحيحة (بين 0 و 100) لجميع المواد.</p>';
+              resultDiv.style.display = 'block';
+              return;
+          }
+
+          if (totalCredits === 0) { 
+              resultDiv.innerHTML = '<p style="color: red;">لا يمكن حساب المعدل، لا توجد وحدات دراسية.</p>';
+              resultDiv.style.display = 'block';
+              return;
+          }
+
+          const weightedAverage = totalWeightedScore / totalCredits;
+          
+          const currentStageScale = gpaScales[selectedStage];
+          if (!currentStageScale) {
+              resultDiv.innerHTML = '<p style="color: red;">مقياس المعدل غير معرف لهذه المرحلة.</p>';
+              resultDiv.style.display = 'block';
+              return;
+          }
+          const stageGpa = weightedAverage / currentStageScale.divisor;
+
+          resultDiv.innerHTML = `
+              <p>مجموع الوحدات: <span class="gpa-value">${totalCredits.toFixed(0)}</span></p>
+              <p>معدلك من 100 للمرحلة ${stageNames[selectedStage] || selectedStage} هو: <span class="gpa-value">${weightedAverage.toFixed(2)}</span></p>
+              <p>المعدل التراكمي من ${currentStageScale.outOf} للمرحلة ${stageNames[selectedStage] || selectedStage} هو: <span class="gpa-value">${stageGpa.toFixed(2)}</span></p>
+          `;
+          resultDiv.style.display = 'block';
+      });
+  </script>
+</body>
+</html>
+
